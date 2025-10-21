@@ -5,55 +5,59 @@
 
 #include <philo.h>
 
+int	update_last_eaten(t_philos *data)
+{
+	set_unlock_int(&data->times_eaten, check_unlock_int(&data->times_eaten) + 1);
+	return (set_unlock_int(&data->last_eaten, get_current_time() + data->args[2]));
+}
+
 void	try_eat(t_philos *data)
 {
-	pthread_mutex_lock(&(data->state->lock));
-	while (!data->state->value)
+	int	time;
+
+	while (!check_unlock_int(data->printex))
 	{
-		pthread_mutex_unlock(&(data->state->lock));
-		pthread_mutex_lock(&data->forks[0]->lock);
-		if (data->forks[0]->value == data->index)
+		if (check_lock_int(data->forks[0]) == data->index)
 		{
-			data->last_eaten = get_current_time();
 			data->forks[0]->value = 0;
-			pthread_mutex_lock(data->printex);
-			printf("%d %d has taken a fork\n", data->last_eaten, data->index);
-			pthread_mutex_lock(&data->forks[1]->lock);
-			printf("%d %d is eating\n", data->last_eaten, data->index);
-			pthread_mutex_unlock(data->printex);
-			usleep(1000 * data->args[2]);
+			if (check_lock_int(data->printex))
+			{
+				printf("%d %d has taken a fork\n", get_current_time(), data->index);
+				pthread_mutex_lock(&data->forks[1]->lock);
+				time = update_last_eaten(data);
+				printf("%d %d is eating\n", time, data->index);
+				pthread_mutex_unlock(&data->printex->lock);
+				usleep(1000 * data->args[2]);
+				pthread_mutex_unlock(&data->forks[1]->lock);
+			}
+			else
+				pthread_mutex_unlock(&data->printex->lock);
 			pthread_mutex_unlock(&data->forks[0]->lock);
-			pthread_mutex_unlock(&data->forks[1]->lock);
 			return ;
 		}
 		pthread_mutex_unlock(&data->forks[0]->lock);
 		usleep(1);
-		pthread_mutex_lock(&(data->state->lock));
 	}
-	pthread_mutex_unlock(&(data->state->lock));
 }
 
 void	sleep_philo(t_philos *data)
 {
-	pthread_mutex_lock(data->printex);
-	printf("%d %d is sleeping\n", get_current_time(), data->index);
-	pthread_mutex_unlock(data->printex);
-	usleep(1000 * data->args[3]);
+	if (check_lock_int(data->printex))
+	{
+		printf("%d %d is sleeping\n", get_current_time(), data->index);
+		pthread_mutex_unlock(&data->printex->lock);
+		usleep(1000 * data->args[3]);
+	}
+	else
+		pthread_mutex_unlock(&data->printex->lock);
 }
 
 void	*start_philo(t_philos *data)
 {
-	pthread_mutex_lock(&(data->state->lock));
-	while (!data->state->value)
+	while (check_unlock_int(data->printex))
 	{
-		pthread_mutex_unlock(&(data->state->lock));
 		try_eat(data);
-		pthread_mutex_lock(&(data->state->lock));
-		if (data->state->value)
-			break ;
-		pthread_mutex_unlock(&(data->state->lock));
 		sleep_philo(data);
-		pthread_mutex_lock(&(data->state->lock));
 	}
 	return (0);
 }

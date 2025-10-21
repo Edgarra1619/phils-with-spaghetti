@@ -11,18 +11,17 @@ typedef struct	s_locked_int
 typedef struct	s_philos
 {
 	pthread_t			thread;
-	pthread_mutex_t		*printex;
+	t_locked_int		*printex;
 	t_locked_int		*forks[2];
 	const int			*args;
-	t_locked_int		*state;
 	int					index;
-	int					last_eaten;
-	int					times_eaten;
+	t_locked_int		last_eaten;
+	t_locked_int		times_eaten;
 } t_philos;
 
 typedef struct	s_world
 {
-	pthread_mutex_t	printex;
+	t_locked_int	printex;
 	t_locked_int	*forks;
 	t_philos		*phils;
 	int				args[5];
@@ -30,5 +29,9 @@ typedef struct	s_world
 } t_world;
 
 int		get_current_time(void);
+
+int	check_unlock_int(t_locked_int *check);
+int	set_unlock_int(t_locked_int *set, int value);
+int	check_lock_int(t_locked_int *check);
 
 #endif
