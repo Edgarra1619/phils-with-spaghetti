@@ -1,27 +1,40 @@
+#include <pthread.h>
 #include <stdlib.h>
 
 #include <libft.h>
 #include <philo.h>
+
+
+int	init_phil_mutexes(t_philos *phil)
+{
+	if (pthread_mutex_init(&phil->forks[0]->lock, NULL))
+		return (1);
+	if (pthread_mutex_init(&phil->last_eaten.lock, NULL))
+	{
+		pthread_mutex_destroy(&phil->forks[0]->lock);
+		return (1);
+	}
+	if (pthread_mutex_init(&phil->last_eaten.lock, NULL))
+	{
+		pthread_mutex_destroy(&phil->forks[0]->lock);
+		pthread_mutex_destroy(&phil->last_eaten.lock);
+		return (1);
+	}
+	return (0);
+}
 
 int	init_mutexes(t_world *data)
 {
 	int	i;
 
 	i = data->args[0] - 1;
-	if (pthread_mutex_init(&data->printex, NULL))
-		return (1);
-	if (pthread_mutex_init(&data->state.lock, NULL))
+	if (pthread_mutex_init(&data->printex.lock, NULL))
 		return (1);
 	while (i >= 0)
 	{
-		if (pthread_mutex_init(&(data->forks[i]).lock, NULL))
+		if (init_phil_mutexes(data->phils + i))
 		{
-			pthread_mutex_destroy(&data->printex);
-			while (i < data->args[1])
-			{
-				pthread_mutex_destroy(&(data->forks[i]).lock);
-				i++;
-			}
+			free_data(data, i);
 			return (1);
 		}
 		i--;
@@ -37,12 +50,12 @@ void	fill_phils(t_world *data)
 	while (i >= 0)
 	{
 		data->phils[i].args = data->args;
-		data->phils[i].printex = &data->printex;
+		data->phils[i].printex = &(data->printex);
 		data->phils[i].forks[0] = data->forks + i;
 		data->phils[i].forks[1] = data->forks + ((i + 1) % data->args[0]);
 		data->phils[i].index = i + 1;
-		data->phils[i].state = &data->state;
-		data->phils[i].times_eaten = 0;
+		data->phils[i].times_eaten.value = 0;
+		data->phils[i].last_eaten.value = get_current_time();
 		i--;
 	}
 }
@@ -58,13 +71,9 @@ int	init_phils(t_world *data)
 		free(data->phils);
 		return (1);
 	}
-	if (init_mutexes(data))
-	{
-		free(data->phils);
-		free(data->forks);
-		return (1);
-	}
 	fill_phils(data);
-	data->state.value = 0;
+	if (init_mutexes(data))
+		return (1);
+	data->printex.value = 1;
 	return (0);
 }

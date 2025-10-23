@@ -7,15 +7,16 @@
 
 int	update_last_eaten(t_philos *data)
 {
+	const int	tmp = get_current_time();
+
 	set_unlock_int(&data->times_eaten, check_unlock_int(&data->times_eaten) + 1);
-	return (set_unlock_int(&data->last_eaten, get_current_time() + data->args[2]));
+	set_unlock_int(&data->last_eaten, get_current_time() + data->args[2]);
+	return (tmp);
 }
 
 void	try_eat(t_philos *data)
 {
-	int	time;
-
-	while (!check_unlock_int(data->printex))
+	while (check_unlock_int(data->printex))
 	{
 		if (check_lock_int(data->forks[0]) == data->index)
 		{
@@ -24,8 +25,7 @@ void	try_eat(t_philos *data)
 			{
 				printf("%d %d has taken a fork\n", get_current_time(), data->index);
 				pthread_mutex_lock(&data->forks[1]->lock);
-				time = update_last_eaten(data);
-				printf("%d %d is eating\n", time, data->index);
+				printf("%d %d is eating\n", update_last_eaten(data), data->index);
 				pthread_mutex_unlock(&data->printex->lock);
 				usleep(1000 * data->args[2]);
 				pthread_mutex_unlock(&data->forks[1]->lock);

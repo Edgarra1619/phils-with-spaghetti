@@ -21,17 +21,19 @@ typedef struct	s_philos
 
 typedef struct	s_world
 {
+	pthread_t		death_checker;
 	t_locked_int	printex;
 	t_locked_int	*forks;
 	t_philos		*phils;
 	int				args[5];
-	t_locked_int	state;
 } t_world;
 
 int		get_current_time(void);
 
-int	check_unlock_int(t_locked_int *check);
-int	set_unlock_int(t_locked_int *set, int value);
-int	check_lock_int(t_locked_int *check);
+int		check_unlock_int(t_locked_int *check);
+int		set_unlock_int(t_locked_int *set, int value);
+int		check_lock_int(t_locked_int *check);
+void	free_philosopher(t_philos *phil);
+void	free_data(t_world *data, int first_phil);
 
 #endif

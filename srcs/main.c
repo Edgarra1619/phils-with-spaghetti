@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <unistd.h>
-#include <stdlib.h>
 #include <pthread.h>
 
 #include <libft.h>
@@ -26,17 +25,26 @@ int	check_eat_count(t_world *data)
 	return (1);
 }
 
-void	*death_checker(t_world *data)
+void	*death_checker_loop(t_world *data)
 {
 	int	i;
+	int	tmp;
 
 	i = 0;
-	while (1)
+	while (check_unlock_int(&data->printex))
 	{
 		i = (i + 1) % data->args[0];
-		if (get_current_time() -
-			check_unlock_int(&data->phils[i].last_eaten) > data->args[1]
-			|| check_eat_count(data))
+		tmp = get_current_time();
+		if (tmp -
+			check_unlock_int(&data->phils[i].last_eaten) > data->args[1])
+		{
+			pthread_mutex_lock(&data->printex.lock);
+			data->printex.value = 0;
+			printf("%d %d died\n", get_current_time(), i + 1);
+			pthread_mutex_unlock(&data->printex.lock);
+			break;
+		}
+		if (check_eat_count(data))
 		{
 			set_unlock_int(&data->printex, 0);
 			break;
@@ -46,21 +54,49 @@ void	*death_checker(t_world *data)
 	return (NULL);
 }
 
+void	fork_giver_loop(t_world *data)
+{
+	int	i;
+	int	parity;
+
+	i = 0;
+	parity = 0;
+	while (check_unlock_int(&data->printex))
+	{
+		while (check_unlock_int(&(data->forks[i + !parity])))
+			usleep(1);
+		set_unlock_int(&(data->forks[i + parity]), i + parity + 1);
+		i += 2;
+		if (i + parity >= data->args[0])
+		{
+			parity = !parity;
+			i = 0;
+		}
+	}
+}
+
 int	main(__attribute__((unused)) int argc,
 		 char **argv)
 {
 	t_world	data;
+	int		i;
 
 	data.args[4] = -1;
 	if (parse_input(argv + 1, data.args))
 		return (1);
-	//TODO rework init phils
 	if (init_phils(&data))
 		return (1);
 	data.forks->value = 1;
-	pthread_create(&data.phils->thread, NULL, start_philo, data.phils);
-	usleep(1000000);
-	pthread_detach(data.phils->thread);
-	free(data.phils);
-	free(data.forks);
+	pthread_create(&data.death_checker, NULL,
+			(void*(*)(void*))death_checker_loop, &data);
+	pthread_detach(data.death_checker);
+	i = -1;
+	while (++i < data.args[0])
+		pthread_create(&data.phils[i].thread, NULL,
+				(void*(*)(void*))start_philo, (void*) (data.phils + i));
+	fork_giver_loop(&data);
+	i = -1;
+	while (++i < data.args[0])
+		pthread_join(data.phils[i].thread, NULL);
+	free_data(&data, 0);
 }
