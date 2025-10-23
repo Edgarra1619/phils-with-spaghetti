@@ -18,7 +18,7 @@ int	check_eat_count(t_world *data)
 	i = 0;
 	while (i < data->args[0])
 	{
-		if (check_unlock_int(&data->phils[i].times_eaten) >= data->args[4])
+		if (check_unlock_int(&data->phils[i].times_eaten) <= data->args[4])
 			return (0);
 		i++;
 	}
@@ -63,7 +63,7 @@ void	fork_giver_loop(t_world *data)
 	parity = 0;
 	while (check_unlock_int(&data->printex))
 	{
-		while (check_unlock_int(&(data->forks[i + !parity])))
+		while (check_unlock_int(&(data->forks[(i + !parity) % data->args[0]])))
 			usleep(1);
 		set_unlock_int(&(data->forks[i + parity]), i + parity + 1);
 		i += 2;
@@ -89,7 +89,6 @@ int	main(__attribute__((unused)) int argc,
 	data.forks->value = 1;
 	pthread_create(&data.death_checker, NULL,
 			(void*(*)(void*))death_checker_loop, &data);
-	pthread_detach(data.death_checker);
 	i = -1;
 	while (++i < data.args[0])
 		pthread_create(&data.phils[i].thread, NULL,
@@ -98,5 +97,6 @@ int	main(__attribute__((unused)) int argc,
 	i = -1;
 	while (++i < data.args[0])
 		pthread_join(data.phils[i].thread, NULL);
+	pthread_join(data.death_checker, NULL);
 	free_data(&data, 0);
 }

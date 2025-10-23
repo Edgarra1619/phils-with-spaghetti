@@ -1,6 +1,6 @@
 NAME = philo
 SRCS = main.c parse.c philosopher.c init.c utils.c
-TESTARGS = 5 2000 200 200
+TESTARGS = 3 2000 200 200
 OPTFLAG = 0
 SRCDIR = ./srcs/
 OBJDIR = ./objs/
@@ -49,6 +49,9 @@ gprof: $(NAME)
 
 valgrind: $(NAME)
 	valgrind --track-origins=yes --leak-check=full --show-leak-kinds=all ./$(NAME) $(TESTARGS)
+
+helgrind: $(NAME)
+	valgrind --tool=helgrind ./$(NAME) $(TESTARGS)
 
 gdb: $(NAME)
 	gdbtui --args $(NAME) $(TESTARGS)
