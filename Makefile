@@ -7,7 +7,7 @@ OBJDIR = ./objs/
 LIBFT = ./libft/
 CC = cc
 INCFLAGS = -I ./includes/ -I $(LIBFT)
-CFLAGS = -Wall -Wextra -g -O$(OPTFLAG)
+CFLAGS = -Wall -Wextra -Werror -g -O$(OPTFLAG)
 OBJS = $(patsubst %.c, $(OBJDIR)%.o, $(SRCS))
 
 ifeq ($(BONUS), 1)

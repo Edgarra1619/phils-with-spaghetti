@@ -24,6 +24,13 @@ void	try_eat(t_philos *data)
 			if (check_lock_int(data->printex))
 			{
 				printf("%d %d has taken a fork\n", get_current_time(), data->index);
+				if (data->forks[0] == data->forks[1])
+				{
+					pthread_mutex_unlock(&data->forks[0]->lock);
+					pthread_mutex_unlock(&data->printex->lock);
+					usleep(1000 * (data->args[1] + 10));
+					return ;
+				}
 				pthread_mutex_lock(&data->forks[1]->lock);
 				printf("%d %d is eating\n", update_last_eaten(data), data->index);
 				pthread_mutex_unlock(&data->printex->lock);

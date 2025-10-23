@@ -63,8 +63,9 @@ void	fork_giver_loop(t_world *data)
 	parity = 0;
 	while (check_unlock_int(&data->printex))
 	{
-		while (check_unlock_int(&(data->forks[(i + !parity) % data->args[0]])))
-			usleep(1);
+		usleep(1);
+		if (check_unlock_int(&(data->forks[(i + !parity) % data->args[0]])))
+			continue ;
 		set_unlock_int(&(data->forks[i + parity]), i + parity + 1);
 		i += 2;
 		if (i + parity >= data->args[0])
