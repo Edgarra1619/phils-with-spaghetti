@@ -57,20 +57,24 @@ void	*death_checker_loop(t_world *data)
 void	fork_giver_loop(t_world *data)
 {
 	int	i;
-	int	parity;
+	int	offset;
+	int	tmp;
 
 	i = 0;
-	parity = 0;
+	offset = 0;
 	while (check_unlock_int(&data->printex))
 	{
 		usleep(1);
-		if (check_unlock_int(&(data->forks[(i + !parity) % data->args[0]])))
+		tmp = i + offset;
+		if (check_unlock_int(&(data->forks[(tmp + 1) % data->args[0]])))
 			continue ;
-		set_unlock_int(&(data->forks[i + parity]), i + parity + 1);
+		if (check_unlock_int(&(data->forks[(tmp + data->args[0] - 1) % data->args[0]])))
+			continue ;
+		set_unlock_int(&(data->forks[tmp % data->args[0]]), tmp % data->args[0] + 1);
 		i += 2;
-		if (i + parity >= data->args[0])
+		if (i > data->args[0] - 2)
 		{
-			parity = !parity;
+			offset = (offset + 1) % data->args[0];
 			i = 0;
 		}
 	}
@@ -87,7 +91,6 @@ int	main(__attribute__((unused)) int argc,
 		return (1);
 	if (init_phils(&data))
 		return (1);
-	data.forks->value = 1;
 	pthread_create(&data.death_checker, NULL,
 			(void*(*)(void*))death_checker_loop, &data);
 	i = -1;
