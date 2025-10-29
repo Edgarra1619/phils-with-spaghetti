@@ -1,13 +1,25 @@
-#include <stdio.h>
-#include <unistd.h>
-#include <pthread.h>
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: edgribei <edgribei@student.42porto.com>    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/29 15:33:24 by edgribei          #+#    #+#             */
+/*   Updated: 2025/10/29 15:35:51 by edgribei         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include <libft.h>
 #include <parse.h>
 #include <philo.h>
 
+#include <stdio.h>
+#include <unistd.h>
+#include <pthread.h>
+
 void	*start_philo(void *data);
-int	init_phils(t_world *data);
+int		init_phils(t_world *data);
 
 int	check_eat_count(t_world *data)
 {
@@ -35,19 +47,19 @@ void	*death_checker_loop(t_world *data)
 	{
 		i = (i + 1) % data->args[0];
 		tmp = get_current_time();
-		if (tmp -
-			check_unlock_int(&data->phils[i].last_eaten) > data->args[1])
+		if (tmp
+			- check_unlock_int(&data->phils[i].last_eaten) > data->args[1])
 		{
 			pthread_mutex_lock(&data->printex.lock);
 			data->printex.value = 0;
 			printf("%d %d died\n", get_current_time(), i + 1);
 			pthread_mutex_unlock(&data->printex.lock);
-			break;
+			break ;
 		}
 		if (check_eat_count(data))
 		{
 			set_unlock_int(&data->printex, 0);
-			break;
+			break ;
 		}
 		usleep(1);
 	}
@@ -68,9 +80,8 @@ void	fork_giver_loop(t_world *data)
 		tmp = i + offset;
 		if (check_unlock_int(&(data->forks[(tmp + 1) % data->args[0]])))
 			continue ;
-		if (check_unlock_int(&(data->forks[(tmp + data->args[0] - 1) % data->args[0]])))
-			continue ;
-		set_unlock_int(&(data->forks[tmp % data->args[0]]), tmp % data->args[0] + 1);
+		set_unlock_int
+			(&(data->forks[tmp % data->args[0]]), tmp % data->args[0] + 1);
 		i += 2;
 		if (i > data->args[0] - 2)
 		{
@@ -81,7 +92,7 @@ void	fork_giver_loop(t_world *data)
 }
 
 int	main(__attribute__((unused)) int argc,
-		 char **argv)
+		char **argv)
 {
 	t_world	data;
 	int		i;
@@ -92,11 +103,12 @@ int	main(__attribute__((unused)) int argc,
 	if (init_phils(&data))
 		return (1);
 	pthread_create(&data.death_checker, NULL,
-			(void*(*)(void*))death_checker_loop, &data);
+		(void*(*)(void*))death_checker_loop, &data);
 	i = -1;
+	get_current_time();
 	while (++i < data.args[0])
 		pthread_create(&data.phils[i].thread, NULL,
-				(void*(*)(void*))start_philo, (void*) (data.phils + i));
+			(void*(*)(void*))start_philo, (void*)(data.phils + i));
 	fork_giver_loop(&data);
 	i = -1;
 	while (++i < data.args[0])

@@ -1,9 +1,20 @@
-#include <pthread.h>
-#include <stdlib.h>
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   init.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: edgribei <edgribei@student.42porto.com>    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/29 15:19:04 by edgribei          #+#    #+#             */
+/*   Updated: 2025/10/29 15:19:13 by edgribei         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include <libft.h>
 #include <philo.h>
 
+#include <pthread.h>
+#include <stdlib.h>
 
 int	init_phil_mutexes(t_philos *phil)
 {
@@ -55,7 +66,7 @@ void	fill_phils(t_world *data)
 		data->phils[i].forks[1] = data->forks + ((i + 1) % data->args[0]);
 		data->phils[i].index = i + 1;
 		data->phils[i].times_eaten.value = 0;
-		data->phils[i].last_eaten.value = get_current_time();
+		data->phils[i].last_eaten.value = 0;
 		i--;
 	}
 }

@@ -1,5 +1,5 @@
 NAME = philo
-SRCS = main.c parse.c philosopher.c init.c utils.c
+SRCS = main.c parse.c philosopher.c init.c utils.c mutex_utils.c
 TESTARGS = 3 800 200 200
 OPTFLAG = 0
 SRCDIR = ./srcs/
