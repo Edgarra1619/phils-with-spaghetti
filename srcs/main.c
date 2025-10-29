@@ -80,6 +80,8 @@ void	fork_giver_loop(t_world *data)
 		tmp = i + offset;
 		if (check_unlock_int(&(data->forks[(tmp + 1) % data->args[0]])))
 			continue ;
+		if (check_unlock_int(&(data->forks[tmp % data->args[0]])))
+			continue ;
 		set_unlock_int
 			(&(data->forks[tmp % data->args[0]]), tmp % data->args[0] + 1);
 		i += 2;
