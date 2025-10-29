@@ -23,7 +23,7 @@ int	update_last_eaten(t_philos *data)
 
 	set_unlock_int(&data->times_eaten,
 		check_unlock_int(&data->times_eaten) + 1);
-	set_unlock_int(&data->last_eaten, get_current_time() + data->args[2]);
+	set_unlock_int(&data->last_eaten, tmp);
 	return (tmp);
 }
 
