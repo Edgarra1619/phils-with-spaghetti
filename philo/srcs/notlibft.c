@@ -1,18 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_stdlib.c                                        :+:      :+:    :+:   */
+/*   notlibft.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edgribei <edgribei@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/04/11 14:12:47 by edgribei          #+#    #+#             */
-/*   Updated: 2025/04/17 18:06:40 by edgribei         ###   ########.fr       */
+/*   Created: 2025/10/31 15:52:39 by edgribei          #+#    #+#             */
+/*   Updated: 2025/10/31 15:53:23 by edgribei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdlib.h> //malloc
-#include <stdint.h> //SIZE_MAX
-#include "libft.h"	//ft_bzero
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <limits.h>
 
 void	*ft_calloc(size_t nmemb, size_t size)
 {
@@ -24,19 +25,29 @@ void	*ft_calloc(size_t nmemb, size_t size)
 	ptr = malloc(nmemb * size);
 	if (!ptr)
 		return (NULL);
-	ft_bzero(ptr, nmemb * size);
+	memset(ptr, 0, nmemb * size);
 	return (ptr);
 }
 
-char	*ft_strdup(const char *s)
+int	safe_atoi(const char *str, int *const ret)
 {
-	char	*str;
-	size_t	str_size;
+	const char		sign = (-2 * (*str == '-')) + 1;
+	unsigned int	res;
 
-	str_size = ft_strlen(s) + 1;
-	str = malloc(sizeof(char) * str_size);
-	if (!str)
-		return (NULL);
-	ft_strlcpy(str, s, str_size);
-	return (str);
+	if (*str == '-' || *str == '+')
+		str++;
+	if (!*str)
+		return (-1);
+	res = 0;
+	while (*str)
+	{
+		if (*str < '0' || *str > '9')
+			return (-1);
+		if (((unsigned int) INT_MAX + (sign == -1) - (*str - '0')) / 10 < res)
+			return (-1);
+		res = res * 10 + (*str - '0');
+		str++;
+	}
+	*ret = res * sign;
+	return (0);
 }

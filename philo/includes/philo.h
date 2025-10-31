@@ -41,6 +41,8 @@ typedef struct s_world
 }	t_world;
 
 int		get_current_time(void);
+void	*ft_calloc(size_t nmemb, size_t size);
+int		safe_atoi(const char *str, int *const ret);
 
 int		check_unlock_int(t_locked_int *check);
 int		set_unlock_int(t_locked_int *set, int value);

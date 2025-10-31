@@ -1,12 +1,11 @@
 NAME = philo
-SRCS = main.c parse.c philosopher.c init.c utils.c mutex_utils.c
+SRCS = main.c parse.c philosopher.c init.c utils.c mutex_utils.c notlibft.c
 TESTARGS = 3 800 200 200
 OPTFLAG = 0
 SRCDIR = ./srcs/
 OBJDIR = ./objs/
-LIBFT = ./libft/
 CC = cc
-INCFLAGS = -I ./includes/ -I $(LIBFT)
+INCFLAGS = -I ./includes/
 CFLAGS = -Wall -Wextra -Werror -g -O$(OPTFLAG)
 OBJS = $(patsubst %.c, $(OBJDIR)%.o, $(SRCS))
 
@@ -22,22 +21,15 @@ clean:
 
 fclean: clean
 	$(RM) $(NAME)
-	$(MAKE) -C $(LIBFT) fclean
 
 re: clean all
 
-$(NAME): $(OBJS) $(LIBFT)libft.a
-	$(CC) $(CFLAGS) $(OBJS) $(LIBFT)libft.a -o $@
+$(NAME): $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) -o $@
 
 $(OBJS): $(OBJDIR)%.o: $(SRCDIR)%.c
 	mkdir -p $(OBJDIR)
 	$(CC) $(CFLAGS) $(INCFLAGS) $^ -c -o $@
-
-$(LIBFT)libft.a:
-	make -C $(LIBFT)
-
-$(MINILIBX)libmlx.a $(MINILIBX)libmlx_Linux.a:
-	make -C $(MINILIBX)
 
 test: $(NAME)
 	./$(NAME) $(TESTARGS)

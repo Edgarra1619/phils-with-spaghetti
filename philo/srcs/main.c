@@ -10,7 +10,6 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <libft.h>
 #include <parse.h>
 #include <philo.h>
 
@@ -30,7 +29,7 @@ int	check_eat_count(t_world *data)
 	i = 0;
 	while (i < data->args[0])
 	{
-		if (check_unlock_int(&data->phils[i].times_eaten) <= data->args[4])
+		if (check_unlock_int(&data->phils[i].times_eaten) < data->args[4])
 			return (0);
 		i++;
 	}

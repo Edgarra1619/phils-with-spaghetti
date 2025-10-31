@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <libft.h>
 #include <parse.h>
+#include <philo.h>
 
 int	parse_input(char **argv, int *args)
 {
